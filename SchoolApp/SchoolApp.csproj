@@ -8,15 +8,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include=".github\images\" />
-      <Folder Include="Models\" />
-      <Folder Include="Presenters\" />
-      <Folder Include="Services\" />
-      <Folder Include="Shared\" />
-      <Folder Include="Views\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.0" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0">
