@@ -1,5 +1,3 @@
-using SchoolApp.Models;
-
 namespace SchoolApp.Presenters;
 
 public class LoginPresenter(DatabaseContext context, LoginServices loginServices, LoginView loginView) : ILoginPresenter

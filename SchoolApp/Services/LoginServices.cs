@@ -1,6 +1,4 @@
-using SchoolApp.Models;
 using SchoolApp.Models.DTOs;
-using SchoolApp.Presenters;
 
 namespace SchoolApp.Services;
 

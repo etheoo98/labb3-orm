@@ -1,7 +1,4 @@
-﻿using SchoolApp.Models;
-using SchoolApp.Presenters;
-
-namespace SchoolApp;
+﻿namespace SchoolApp;
 
 internal static class Program
 {
