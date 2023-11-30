@@ -47,6 +47,9 @@ public class LoginPresenter(DatabaseContext context, ILoginService loginService,
         if (_username == null || _password == null) return;
         
         var adminDto = loginService.AttemptLogin(_username, _password);
+        
+        _password = string.Empty;
+        _maskedPassword = string.Empty;
 
         if (adminDto == null) return;
         

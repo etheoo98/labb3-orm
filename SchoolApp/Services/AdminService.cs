@@ -26,6 +26,8 @@ public class AdminService(DatabaseContext context) : IAdminService
         context.Administrators.Add(admin);
         context.SaveChanges();
         
+        admin.Password = string.Empty;
+        
         return true;
     }
 }
