@@ -1,6 +1,6 @@
 namespace SchoolApp.Services;
 
-public class AdminService(DatabaseContext context)
+public class AdminService(DatabaseContext context) : IAdminService
 {
     public bool CreateAdmin(string username, string password)
     {
