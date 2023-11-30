@@ -17,4 +17,10 @@
       <PackageReference Include="Spectre.Console" Version="0.48.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="Database.db">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>

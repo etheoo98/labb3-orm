@@ -1,6 +1,6 @@
 namespace SchoolApp.Views;
 
-public class LoginView
+public class LoginView : View
 {
     
 }
