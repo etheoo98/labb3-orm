@@ -4,7 +4,7 @@ public partial class Course
 {
     public int Id { get; set; }
 
-    public string? Name { get; set; }
+    public string Name { get; set; } = null!;
 
     public virtual ICollection<CourseTeacher> CourseTeachers { get; set; } = new List<CourseTeacher>();
 

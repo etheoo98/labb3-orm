@@ -40,6 +40,7 @@ public partial class DatabaseContext : DbContext
     public virtual DbSet<Teacher> Teachers { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseSqlite("Data Source=Database.db");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -56,7 +57,8 @@ public partial class DatabaseContext : DbContext
 
             entity.HasOne(d => d.RoleNameNavigation).WithMany(p => p.Administrators)
                 .HasPrincipalKey(p => p.Name)
-                .HasForeignKey(d => d.RoleName);
+                .HasForeignKey(d => d.RoleName)
+                .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
         modelBuilder.Entity<Compartment>(entity =>
@@ -65,7 +67,9 @@ public partial class DatabaseContext : DbContext
 
             entity.Property(e => e.SalaryId).HasColumnName("Salary_Id");
 
-            entity.HasOne(d => d.Salary).WithMany(p => p.Compartments).HasForeignKey(d => d.SalaryId);
+            entity.HasOne(d => d.Salary).WithMany(p => p.Compartments)
+                .HasForeignKey(d => d.SalaryId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
         modelBuilder.Entity<Course>(entity =>
@@ -82,9 +86,13 @@ public partial class DatabaseContext : DbContext
             entity.Property(e => e.CourseId).HasColumnName("Course_Id");
             entity.Property(e => e.TeacherId).HasColumnName("Teacher_Id");
 
-            entity.HasOne(d => d.Course).WithMany(p => p.CourseTeachers).HasForeignKey(d => d.CourseId);
+            entity.HasOne(d => d.Course).WithMany(p => p.CourseTeachers)
+                .HasForeignKey(d => d.CourseId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
 
-            entity.HasOne(d => d.Teacher).WithMany(p => p.CourseTeachers).HasForeignKey(d => d.TeacherId);
+            entity.HasOne(d => d.Teacher).WithMany(p => p.CourseTeachers)
+                .HasForeignKey(d => d.TeacherId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
         modelBuilder.Entity<Grade>(entity =>
@@ -97,11 +105,17 @@ public partial class DatabaseContext : DbContext
             entity.Property(e => e.RegistrationId).HasColumnName("Registration_Id");
             entity.Property(e => e.TeacherId).HasColumnName("Teacher_Id");
 
-            entity.HasOne(d => d.Course).WithMany(p => p.Grades).HasForeignKey(d => d.CourseId);
+            entity.HasOne(d => d.Course).WithMany(p => p.Grades)
+                .HasForeignKey(d => d.CourseId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
 
-            entity.HasOne(d => d.Registration).WithMany(p => p.Grades).HasForeignKey(d => d.RegistrationId);
+            entity.HasOne(d => d.Registration).WithMany(p => p.Grades)
+                .HasForeignKey(d => d.RegistrationId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
 
-            entity.HasOne(d => d.Teacher).WithMany(p => p.Grades).HasForeignKey(d => d.TeacherId);
+            entity.HasOne(d => d.Teacher).WithMany(p => p.Grades)
+                .HasForeignKey(d => d.TeacherId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
         modelBuilder.Entity<PersonalInfo>(entity =>
@@ -124,7 +138,8 @@ public partial class DatabaseContext : DbContext
 
             entity.HasOne(d => d.RoleNameNavigation).WithMany(p => p.Principals)
                 .HasPrincipalKey(p => p.Name)
-                .HasForeignKey(d => d.RoleName);
+                .HasForeignKey(d => d.RoleName)
+                .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
         modelBuilder.Entity<Registration>(entity =>
@@ -132,9 +147,13 @@ public partial class DatabaseContext : DbContext
             entity.Property(e => e.CourseId).HasColumnName("Course_Id");
             entity.Property(e => e.StudentId).HasColumnName("Student_Id");
 
-            entity.HasOne(d => d.Course).WithMany(p => p.Registrations).HasForeignKey(d => d.CourseId);
+            entity.HasOne(d => d.Course).WithMany(p => p.Registrations)
+                .HasForeignKey(d => d.CourseId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
 
-            entity.HasOne(d => d.Student).WithMany(p => p.Registrations).HasForeignKey(d => d.StudentId);
+            entity.HasOne(d => d.Student).WithMany(p => p.Registrations)
+                .HasForeignKey(d => d.StudentId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
         modelBuilder.Entity<Role>(entity =>
@@ -155,18 +174,26 @@ public partial class DatabaseContext : DbContext
             entity.Property(e => e.PersonalInfoId).HasColumnName("PersonalInfo_Id");
             entity.Property(e => e.RoleId).HasColumnName("Role_Id");
 
-            entity.HasOne(d => d.Compartment).WithMany(p => p.Staff).HasForeignKey(d => d.CompartmentId);
+            entity.HasOne(d => d.Compartment).WithMany(p => p.Staff)
+                .HasForeignKey(d => d.CompartmentId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
 
-            entity.HasOne(d => d.PersonalInfo).WithMany(p => p.Staff).HasForeignKey(d => d.PersonalInfoId);
+            entity.HasOne(d => d.PersonalInfo).WithMany(p => p.Staff)
+                .HasForeignKey(d => d.PersonalInfoId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
 
-            entity.HasOne(d => d.Role).WithMany(p => p.Staff).HasForeignKey(d => d.RoleId);
+            entity.HasOne(d => d.Role).WithMany(p => p.Staff)
+                .HasForeignKey(d => d.RoleId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
         modelBuilder.Entity<Student>(entity =>
         {
             entity.Property(e => e.PersonalInfoId).HasColumnName("PersonalInfo_Id");
 
-            entity.HasOne(d => d.PersonalInfo).WithMany(p => p.Students).HasForeignKey(d => d.PersonalInfoId);
+            entity.HasOne(d => d.PersonalInfo).WithMany(p => p.Students)
+                .HasForeignKey(d => d.PersonalInfoId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
         modelBuilder.Entity<Teacher>(entity =>
@@ -177,7 +204,8 @@ public partial class DatabaseContext : DbContext
 
             entity.HasOne(d => d.RoleNameNavigation).WithMany(p => p.Teachers)
                 .HasPrincipalKey(p => p.Name)
-                .HasForeignKey(d => d.RoleName);
+                .HasForeignKey(d => d.RoleName)
+                .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
         OnModelCreatingPartial(modelBuilder);
