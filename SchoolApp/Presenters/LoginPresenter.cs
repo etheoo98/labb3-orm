@@ -1,6 +1,6 @@
 namespace SchoolApp.Presenters;
 
-public class LoginPresenter(LoginService loginService, LoginView loginView) : ILoginPresenter
+public class LoginPresenter(DatabaseContext context, ILoginService loginService, LoginView loginView) : IPresenter
 {
     private Dictionary<string, Action> _loginChoices = new();
     private string? _username = "";
@@ -15,13 +15,15 @@ public class LoginPresenter(LoginService loginService, LoginView loginView) : IL
 
         while (!exit)
         {
-            _loginChoices = new Dictionary<string, Action>()
+            _loginChoices = new Dictionary<string, Action>
             {
                 {$"Username: {_username}", OnSelect_Username},
                 {$"Password: {_maskedPassword}\n", OnSelect_Password},
                 {"Login", OnSelect_Login},
                 {"Exit", () => exit = true},
             };
+            
+            Console.Clear();
 
             var choice = loginView.GetChoice(prompt, _loginChoices.Keys.ToList());
             
@@ -29,26 +31,27 @@ public class LoginPresenter(LoginService loginService, LoginView loginView) : IL
         }
     }
 
-    public void OnSelect_Username()
+    private void OnSelect_Username()
     {
         _username = loginView.GetInput("Enter your username");
     }
 
-    public void OnSelect_Password()
+    private void OnSelect_Password()
     {
         _password = loginView.GetSecretInput("Enter your password");
         _maskedPassword = new string('*', _password!.Length);
     }
 
-    public void OnSelect_Login()
+    private void OnSelect_Login()
     {
         if (_username == null || _password == null) return;
         
         var adminDto = loginService.AttemptLogin(_username, _password);
+
+        if (adminDto == null) return;
         
-        if (adminDto != null)
-        {
-            throw new NotImplementedException();
-        }
+        var adminPresenter = new AdminPresenter(adminDto, new AdminService(context), new AdminView());
+        
+        adminPresenter.HandlePresenter();
     }
 }
