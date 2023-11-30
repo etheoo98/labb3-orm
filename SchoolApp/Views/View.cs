@@ -2,7 +2,7 @@ using Spectre.Console;
 
 namespace SchoolApp.Views;
 
-public abstract class View
+public abstract class View : IView
 {
     public T GetChoice<T>(string prompt, List<T> choices) where T : notnull => AnsiConsole.Prompt(
         new SelectionPrompt<T>()
