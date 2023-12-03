@@ -9,9 +9,11 @@ public partial class Staff
 
     public int CompartmentsId { get; set; }
 
-    public int? StaffRolesId { get; set; }
+    public int RolesId { get; set; }
 
     public virtual Compartment Compartments { get; set; } = null!;
 
-    public virtual Role? StaffRoles { get; set; }
+    public virtual Role Roles { get; set; } = null!;
+
+    public virtual StaffRole? StaffRole { get; set; }
 }

@@ -17,14 +17,6 @@ public partial class DatabaseContext : DbContext
 
     public virtual DbSet<Administrator> Administrators { get; set; }
 
-    public virtual DbSet<AllGradesPastYear> AllGradesPastYears { get; set; }
-
-    public virtual DbSet<AllStudent> AllStudents { get; set; }
-
-    public virtual DbSet<AllStudentsYear1> AllStudentsYear1s { get; set; }
-
-    public virtual DbSet<AllTeacher> AllTeachers { get; set; }
-
     public virtual DbSet<Compartment> Compartments { get; set; }
 
     public virtual DbSet<Course> Courses { get; set; }
@@ -54,7 +46,8 @@ public partial class DatabaseContext : DbContext
     public virtual DbSet<YearGroup> YearGroups { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlite("Data Source=../../../Database.db");
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlite("Data Source=Database.db");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -72,62 +65,6 @@ public partial class DatabaseContext : DbContext
                 .HasPrincipalKey<StaffRole>(p => p.StaffId)
                 .HasForeignKey<Administrator>(d => d.StaffRolesId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
-        });
-
-        modelBuilder.Entity<AllGradesPastYear>(entity =>
-        {
-            entity
-                .HasNoKey()
-                .ToView("All_Grades_Past_Year");
-
-            entity.Property(e => e.Course).HasColumnType("varchar(30)");
-            entity.Property(e => e.DateSet).HasColumnName("Date set");
-            entity.Property(e => e.Grade).HasColumnType("varchar(1)");
-            entity.Property(e => e.LastName)
-                .HasColumnType("nvarchar(50)")
-                .HasColumnName("Last name");
-        });
-
-        modelBuilder.Entity<AllStudent>(entity =>
-        {
-            entity
-                .HasNoKey()
-                .ToView("All_Students");
-
-            entity.Property(e => e.FirstName)
-                .HasColumnType("nvarchar(50)")
-                .HasColumnName("First name");
-            entity.Property(e => e.LastName)
-                .HasColumnType("nvarchar(50)")
-                .HasColumnName("Last name");
-        });
-
-        modelBuilder.Entity<AllStudentsYear1>(entity =>
-        {
-            entity
-                .HasNoKey()
-                .ToView("All_Students_Year_1");
-
-            entity.Property(e => e.FirstName)
-                .HasColumnType("nvarchar(50)")
-                .HasColumnName("First_Name");
-            entity.Property(e => e.LastName)
-                .HasColumnType("nvarchar(50)")
-                .HasColumnName("Last_Name");
-        });
-
-        modelBuilder.Entity<AllTeacher>(entity =>
-        {
-            entity
-                .HasNoKey()
-                .ToView("All_Teachers");
-
-            entity.Property(e => e.FirstName)
-                .HasColumnType("nvarchar(50)")
-                .HasColumnName("First name");
-            entity.Property(e => e.LastName)
-                .HasColumnType("nvarchar(50)")
-                .HasColumnName("Last name");
         });
 
         modelBuilder.Entity<Compartment>(entity =>
@@ -199,9 +136,7 @@ public partial class DatabaseContext : DbContext
             entity.Property(e => e.LastName)
                 .HasColumnType("nvarchar(50)")
                 .HasColumnName("Last_Name");
-            entity.Property(e => e.Ssn)
-                .HasColumnType("varchar(10)")
-                .HasColumnName("SSN");
+            entity.Property(e => e.Ssn).HasColumnName("SSN");
         });
 
         modelBuilder.Entity<Principal>(entity =>
@@ -248,13 +183,15 @@ public partial class DatabaseContext : DbContext
         modelBuilder.Entity<Staff>(entity =>
         {
             entity.Property(e => e.CompartmentsId).HasColumnName("Compartments_Id");
-            entity.Property(e => e.StaffRolesId).HasColumnName("Staff_Roles_Id");
+            entity.Property(e => e.RolesId).HasColumnName("Roles_Id");
 
             entity.HasOne(d => d.Compartments).WithMany(p => p.Staff)
                 .HasForeignKey(d => d.CompartmentsId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
 
-            entity.HasOne(d => d.StaffRoles).WithMany(p => p.Staff).HasForeignKey(d => d.StaffRolesId);
+            entity.HasOne(d => d.Roles).WithMany(p => p.Staff)
+                .HasForeignKey(d => d.RolesId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
         modelBuilder.Entity<StaffRole>(entity =>
@@ -264,6 +201,10 @@ public partial class DatabaseContext : DbContext
             entity.HasIndex(e => e.StaffId, "IX_Staff_Roles_Staff_Id").IsUnique();
 
             entity.Property(e => e.StaffId).HasColumnName("Staff_Id");
+
+            entity.HasOne(d => d.Staff).WithOne(p => p.StaffRole)
+                .HasForeignKey<StaffRole>(d => d.StaffId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
         modelBuilder.Entity<Student>(entity =>

@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+
 namespace SchoolApp.Services;
 
 public class AdminService(DatabaseContext context) : IAdminService
@@ -22,5 +24,10 @@ public class AdminService(DatabaseContext context) : IAdminService
         admin.Password = string.Empty;
         
         return true;
+    }
+
+    public void Test()
+    {
+        context.Administrators.FromSqlRaw("");
     }
 }
