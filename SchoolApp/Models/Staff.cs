@@ -1,18 +1,17 @@
-﻿namespace SchoolApp.Models;
+﻿using System;
+using System.Collections.Generic;
+
+namespace SchoolApp.Models;
 
 public partial class Staff
 {
     public int Id { get; set; }
 
-    public int PersonalInfoId { get; set; }
+    public int CompartmentsId { get; set; }
 
-    public int CompartmentId { get; set; }
+    public int? StaffRolesId { get; set; }
 
-    public int RoleId { get; set; }
+    public virtual Compartment Compartments { get; set; } = null!;
 
-    public virtual Compartment Compartment { get; set; } = null!;
-
-    public virtual PersonalInfo PersonalInfo { get; set; } = null!;
-
-    public virtual Role Role { get; set; } = null!;
+    public virtual Role? StaffRoles { get; set; }
 }

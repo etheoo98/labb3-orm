@@ -1,4 +1,7 @@
-﻿namespace SchoolApp.Models;
+﻿using System;
+using System.Collections.Generic;
+
+namespace SchoolApp.Models;
 
 public partial class Course
 {
