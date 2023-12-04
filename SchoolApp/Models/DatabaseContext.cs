@@ -25,6 +25,8 @@ public partial class DatabaseContext : DbContext
 
     public virtual DbSet<Grade> Grades { get; set; }
 
+    public virtual DbSet<GradeValue> GradeValues { get; set; }
+
     public virtual DbSet<Person> Persons { get; set; }
 
     public virtual DbSet<Principal> Principals { get; set; }
@@ -38,6 +40,8 @@ public partial class DatabaseContext : DbContext
     public virtual DbSet<Staff> Staff { get; set; }
 
     public virtual DbSet<StaffRole> StaffRoles { get; set; }
+
+    public virtual DbSet<StaffRoleName> StaffRoleNames { get; set; }
 
     public virtual DbSet<Student> Students { get; set; }
 
@@ -105,14 +109,16 @@ public partial class DatabaseContext : DbContext
         {
             entity.Property(e => e.CoursesId).HasColumnName("Courses_Id");
             entity.Property(e => e.Date).HasColumnType("date");
-            entity.Property(e => e.StudentGrade)
-                .HasColumnType("varchar(1)")
-                .HasColumnName("Student_Grade");
+            entity.Property(e => e.GradeValuesId).HasColumnName("Grade_Values_Id");
             entity.Property(e => e.StudentsId).HasColumnName("Students_Id");
             entity.Property(e => e.TeachersId).HasColumnName("Teachers_Id");
 
             entity.HasOne(d => d.Courses).WithMany(p => p.Grades)
                 .HasForeignKey(d => d.CoursesId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+
+            entity.HasOne(d => d.GradeValues).WithMany(p => p.Grades)
+                .HasForeignKey(d => d.GradeValuesId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
 
             entity.HasOne(d => d.Students).WithMany(p => p.Grades)
@@ -122,6 +128,17 @@ public partial class DatabaseContext : DbContext
             entity.HasOne(d => d.Teachers).WithMany(p => p.Grades)
                 .HasForeignKey(d => d.TeachersId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
+        });
+
+        modelBuilder.Entity<GradeValue>(entity =>
+        {
+            entity.ToTable("Grade_Values");
+
+            entity.HasIndex(e => e.Letter, "IX_Grade_Values_Letter").IsUnique();
+
+            entity.HasIndex(e => e.Value, "IX_Grade_Values_Value").IsUnique();
+
+            entity.Property(e => e.Letter).HasColumnType("varchar(1)");
         });
 
         modelBuilder.Entity<Person>(entity =>
@@ -200,10 +217,24 @@ public partial class DatabaseContext : DbContext
             entity.HasIndex(e => e.StaffId, "IX_Staff_Roles_Staff_Id").IsUnique();
 
             entity.Property(e => e.StaffId).HasColumnName("Staff_Id");
+            entity.Property(e => e.StaffRoleNamesId).HasColumnName("Staff_Role_Names_Id");
 
             entity.HasOne(d => d.Staff).WithOne(p => p.StaffRole)
                 .HasForeignKey<StaffRole>(d => d.StaffId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
+
+            entity.HasOne(d => d.StaffRoleNames).WithMany(p => p.StaffRoles)
+                .HasForeignKey(d => d.StaffRoleNamesId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+        });
+
+        modelBuilder.Entity<StaffRoleName>(entity =>
+        {
+            entity.ToTable("Staff_Role_Names");
+
+            entity.HasIndex(e => e.Name, "IX_Staff_Role_Names_Name").IsUnique();
+
+            entity.Property(e => e.Name).HasColumnType("varchar(30)");
         });
 
         modelBuilder.Entity<Student>(entity =>

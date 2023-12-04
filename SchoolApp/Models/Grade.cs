@@ -13,11 +13,13 @@ public partial class Grade
 
     public int TeachersId { get; set; }
 
-    public string StudentGrade { get; set; } = null!;
+    public int GradeValuesId { get; set; }
 
     public long Date { get; set; }
 
     public virtual Course Courses { get; set; } = null!;
+
+    public virtual GradeValue GradeValues { get; set; } = null!;
 
     public virtual Student Students { get; set; } = null!;
 
