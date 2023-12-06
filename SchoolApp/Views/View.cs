@@ -18,4 +18,16 @@ public abstract class View : IView
         new TextPrompt<string>(prompt)
             .PromptStyle("red")
             .Secret());
+
+    public List<T> GetMultiChoice<T>(string prompt, List<T> choices) where T : notnull
+    {
+        var fruits = AnsiConsole.Prompt(
+            new MultiSelectionPrompt<T>()
+                .Title(prompt)
+                .Required()
+                .PageSize(10)
+                .AddChoices(choices));
+
+        return fruits;
+    }
 }

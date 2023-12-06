@@ -15,13 +15,13 @@ public class AdminPresenter(AdminDto adminDto, IAdminService adminService, Admin
         {
             _adminChoices = new Dictionary<string, Action>
             {
-                {"Show Staff", OnSelect_ShowStaff},
-                {"Show Students", OnSelect_ShowStudents},
-                {"Show Students From Class", OnSelect_ShowStudentsFromClass},
-                {"Show Recent Grades", OnSelect_ShowRecentGrades},
-                {"Show Grade Statistics", OnSelect_ShowGradeStatistics},
+                {"Show Staff*", OnSelect_ShowStaff},
+                {"Show Students*", OnSelect_ShowStudents},
+                {"Show Students* From Year Group*", OnSelect_ShowStudentsFromYearGroup},
+                {"Show Recent Grades*", OnSelect_ShowRecentGrades},
+                {"Show Course Statistics*", OnSelect_ShowCourseStatistics},
                 {"Add New Student", OnSelect_AddNewStudent},
-                {"Add New Staff Member", OnSelect_AddNewStaffMember},
+                {"Add New Staff Member\n", OnSelect_AddNewStaffMember},
                 {"Exit", () => logout = true},
             };
             
@@ -35,27 +35,66 @@ public class AdminPresenter(AdminDto adminDto, IAdminService adminService, Admin
 
     private void OnSelect_ShowStaff()
     {
-        throw new NotImplementedException();
+        Dictionary<string, string> staffRoleChoices = new()
+        {
+            {"Include Administrators", "Administrator" },
+            {"Include Principals", "Principal"},
+            {"Include Teachers", "Teacher"},
+        };
+
+        var options = adminView.GetMultiChoice("What Staff do you want to show?", staffRoleChoices.Keys.ToList());
+        var roles = options.Select(option => staffRoleChoices[option]).ToList();
+        var staff = adminService.GetStaffBasedOnRoles(roles);
+
+        adminView.ShowStaff(staff);
     }
     
     private void OnSelect_ShowStudents()
     {
-        throw new NotImplementedException();
+        Dictionary<string, bool> sortChoices = new()
+        {
+            {"Sort by first name", true},
+            {"Sort by last name", false},
+        };
+        
+        Dictionary<string, bool> orderChoices = new()
+        {
+            {"Order by ascending (A-Z)", false},
+            {"Order by descending (Z-A)", true},
+        };
+        
+        var sort = adminView
+            .GetChoice("What do you want to sort the Students by?", sortChoices.Keys.ToList());
+        
+        var order = adminView
+            .GetChoice("How do you want to order the Students?", orderChoices.Keys.ToList());
+        
+        var students = adminService
+            .GetAllStudents(sortChoices[sort], orderChoices[order]);
+        
+        adminView.ShowStudents(students);
     }
     
-    private void OnSelect_ShowStudentsFromClass()
+    private void OnSelect_ShowStudentsFromYearGroup()
     {
-        throw new NotImplementedException();
+        var yearGroups = adminService.GetYearGroups();
+        var year = adminView
+            .GetChoice("What year group?", yearGroups.Select(y => y.Year).ToList());
+        var students = adminService.GetStudentsFromYearGroup(year);
+        
+        adminView.ShowStudentsFromYearGroup(students);
     }
     
     private void OnSelect_ShowRecentGrades()
     {
-        throw new NotImplementedException();
+        var grades = adminService.GetRecentGrades();
+        adminView.ShowRecentGrades(grades);
     }
     
-    private void OnSelect_ShowGradeStatistics()
+    private void OnSelect_ShowCourseStatistics()
     {
-        throw new NotImplementedException();
+        var courses = adminService.GetCourseStatistics();
+        adminView.ShowCourseStatistics(courses);
     }
     
     private void OnSelect_AddNewStudent()
