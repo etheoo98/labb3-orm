@@ -1,3 +1,5 @@
+using SchoolApp.Models.DTOs;
+
 namespace SchoolApp.Presenters;
 
 public class LoginPresenter(DatabaseContext context, ILoginService loginService, LoginView loginView) : IPresenter
@@ -53,7 +55,8 @@ public class LoginPresenter(DatabaseContext context, ILoginService loginService,
 
         if (adminDto == null) return;
         
-        var adminPresenter = new AdminPresenter(adminDto, new AdminService(context), new AdminView());
+        // TODO: Get Dependency Injection NuGet Package because this unmanageable
+        var adminPresenter = new AdminPresenter(adminDto, new AdminService(context, new DtoMapper()), new AdminView());
         
         adminPresenter.HandlePresenter();
     }
