@@ -24,6 +24,8 @@ public class AdminService(DatabaseContext context, DtoMapper dtoMapper) : IAdmin
         var studentList = context.Students
             .Include(s => s.Roles)
             .ThenInclude(r => r.Persons)
+            .Include(s => s.YearGroups)
+            .Include(s => s.Registrations)
             .ToList();
 
         switch (sortByFirstName)
@@ -89,6 +91,7 @@ public class AdminService(DatabaseContext context, DtoMapper dtoMapper) : IAdmin
             .Where(s => s.YearGroups.Year == yearGroup)
             .Include(s => s.Roles)
             .ThenInclude(r => r.Persons)
+            .Include(s => s.YearGroups)
             .ToList();
         
         var studentDtoList = students.Select(dtoMapper.StudentDtoMapper).ToList();

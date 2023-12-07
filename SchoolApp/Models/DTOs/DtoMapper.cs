@@ -10,7 +10,7 @@ public class DtoMapper
         var date = DateTimeOffset.FromUnixTimeMilliseconds(grade.Date).DateTime;
             
         return new GradeDto(
-            grade.Students.Roles.Persons.FirstName,
+            grade.Students.Roles.Persons.Ssn,
             grade.Students.Roles.Persons.LastName,
             grade.Courses.Name,
             grade.GradeValues.Letter,
@@ -18,7 +18,11 @@ public class DtoMapper
     }
 
     public StudentDto StudentDtoMapper(Student student) => 
-        new(student.Roles.Persons.FirstName, student.Roles.Persons.LastName);
+        new(
+            student.Roles.Persons.FirstName,
+            student.Roles.Persons.LastName,
+            student.YearGroups.Year,
+            student.Registrations.Count);
 
     public CourseDto CourseDtoMapper(Course course, List<GradeValue> gradeValues)
     {
