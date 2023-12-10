@@ -5,130 +5,134 @@ namespace SchoolApp.Views;
 
 public class AdminView : View
 {
-    public void ShowStaff(List<StaffDto> staffList)
-    {
-        var table = new Table();
-        table.BorderColor(Color.SpringGreen3);
-        table.Border(TableBorder.MinimalHeavyHead);
-        table.Title("[dodgerblue1]Staff[/]");
-        table.Caption("These are all of the staff members based on your filters.");
-        table.AddColumn("[gold1]First Name[/]");
-        table.AddColumn("[gold1]Last Name[/]");
-        table.AddColumn("[gold1]Role[/]");
-        table.Expand();
-        
-        foreach (var staff in staffList)
-        {
-            table.AddRow(staff.FirstName, staff.LastName, staff.Role);
-        }
-        
-        AnsiConsole.Write(table);
+    public List<T> GetStaffRoleNames<T>(List<T> staffRoleNames) where T : notnull =>
+        GetMultiChoice($"What staff [{HighlightColor}]roles[/] do you want to show?", staffRoleNames);
 
-        Console.ReadKey();
-    }
-    
-    public void ShowStudents(List<StudentDto> students)
+    public void ShowStaffTable(List<StaffDto> staff)
     {
-        var table = new Table();
-        table.BorderColor(Color.SpringGreen3);
-        table.Border(TableBorder.MinimalHeavyHead);
-        table.Title("[dodgerblue1]Students[/]");
-        table.Caption($"These are all of the students.\nIn total there are {students.Count} students.");
-        table.AddColumn("[gold1]First Name[/]");
-        table.AddColumn("[gold1]Last Name[/]");
-        table.AddColumn("[gold1]Year Group[/]");
-        table.AddColumn("[gold1]Course Count[/]");
-        table.Expand();
-        
-        foreach (var student in students)
-        {
-            table.AddRow(
-                student.FirstName,
-                student.LastName,
-                student.YearGroup.ToString(),
-                student.CourseCount.ToString());
-        }
-        
-        AnsiConsole.Write(table);
+        var headers = new List<string> { "First Name", "Last Name", "Role" };
+        var rows = staff.Select(s => new List<string> { s.FirstName, s.LastName, s.Role }).ToList();
+        var table = new TableData("Staff", "These are all of the staff members based on your filters.", headers, rows);
 
-        Console.ReadKey();
+        ShowTable(table);
     }
 
-    public void ShowStudentsFromYearGroup(List<StudentDto> students)
+    public bool GetSortChoice()
     {
-        var table = new Table();
-        table.BorderColor(Color.SpringGreen3);
-        table.Border(TableBorder.MinimalHeavyHead);
-        table.Title("[dodgerblue1]Students[/]");
-        table.Caption($"These are all of the students in year {students.First().YearGroup}" +
-                      $"\nIn total there are {students.Count} students.");
-        table.AddColumn("[gold1]First Name[/]");
-        table.AddColumn("[gold1]Last Name[/]");
-        table.Expand();
-        
-        foreach (var student in students)
+        Dictionary<string, bool> sortChoices = new()
         {
-            table.AddRow(student.FirstName, student.LastName);
-        }
-        
-        AnsiConsole.Write(table);
+            { "Sort by first name", true }, { "Sort by last name", false },
+        };
 
-        Console.ReadKey();
+        var choice = GetChoice("What do you want to sort the Students by?", sortChoices.Keys.ToList());
+
+        return sortChoices[choice];
+    }
+
+    public bool GetOrderChoice()
+    {
+        Dictionary<string, bool> orderChoices = new()
+        {
+            { "Order by ascending (A-Z)", false }, { "Order by descending (Z-A)", true },
+        };
+
+        var choice = GetChoice("What do you want to order the Students by?", orderChoices.Keys.ToList());
+
+        return orderChoices[choice];
+    }
+
+    public void ShowStudentsTable(List<StudentDto> students)
+    {
+        var headers = new List<string> { "First Name", "Last Name", "Year Group", "Course Count" };
+        var rows = students.Select(s =>
+                new List<string> { s.FirstName, s.LastName, s.YearGroup.ToString(), s.CourseCount.ToString() })
+            .ToList();
+        var table = new TableData("Students",
+            $"These are all of the students.\nIn total there are {students.Count} students.", headers, rows);
+
+        ShowTable(table);
+    }
+
+    public int GetYearGroup(List<int> yearGroups) => GetChoice("What year group?", yearGroups);
+
+    public void ShowStudentsFromYearGroupTable(List<StudentDto> students, int year)
+    {
+        var headers = new List<string> { "First Name", "Last name" };
+        var rows = students.Select(s => new List<string> { s.FirstName, s.LastName }).ToList();
+        var table = new TableData("Students",
+            $"These are all of the students in year {year}\n In total there are {students.Count} students", headers,
+            rows);
+
+        ShowTable(table);
+    }
+
+    public void ShowRecentGradesTable(List<GradeDto> grades)
+    {
+        var headers = new List<string>
+        {
+            "SSN",
+            "Last Name",
+            "Course",
+            "Grade",
+            "Date"
+        };
+        var rows = grades.Select(g => new List<string>
+            {
+                g.Ssn,
+                g.LastName,
+                g.Course,
+                g.Grade,
+                g.Date.ToShortDateString()
+            })
+            .ToList();
+        var table = new TableData("Recent Grades", "These are the grades set during the past year.", headers, rows);
+
+        ShowTable(table);
     }
 
     public void ShowCourseStatistics(List<CourseDto> courses)
     {
-        var table = new Table();
-        table.BorderColor(Color.SpringGreen3);
-        table.Border(TableBorder.MinimalHeavyHead);
-        table.Title("[dodgerblue1]Course Statistics[/]");
-        table.Caption("These statistics are based upon all grades for the particular course.");
-        table.AddColumn("[gold1]Name[/]");
-        table.AddColumn("[gold1]Highest Grade[/]");
-        table.AddColumn("[gold1]Average Grade[/]");
-        table.AddColumn("[gold1]Lowest Grade[/]");
-        table.Expand();
-        
-        foreach (var course in courses)
-        {
-            table.AddRow(
-                course.Course,
-                course.HighestGrade,
-                course.AverageGrade,
-                course.LowestGrade);
-        }
-        
-        AnsiConsole.Write(table);
+        var headers = new List<string> { "Name", "Highest Grade", "Average Grade", "Lowest Grade" };
+        var rows = courses.Select(c => new List<string> { c.Course, c.HighestGrade, c.AverageGrade, c.LowestGrade })
+            .ToList();
+        var table = new TableData("Course Statistics", "These are the grades set during the past year.", headers, rows);
 
-        Console.ReadKey();
+        ShowTable(table);
     }
-    
-    public void ShowRecentGrades(List<GradeDto> grades)
+
+    private List<T> GetMultiChoice<T>(string prompt, List<T> choices) where T : notnull
+    {
+        Console.Clear();
+        
+        return AnsiConsole.Prompt(new MultiSelectionPrompt<T>().HighlightStyle($"{HighlightColor}")
+            .Title(prompt)
+            .Required()
+            .PageSize(10)
+            .AddChoices(choices));
+    }
+
+    private void ShowTable(TableData data)
     {
         var table = new Table();
-        table.BorderColor(Color.SpringGreen3);
-        table.Border(TableBorder.MinimalHeavyHead);
-        table.Title("[dodgerblue1]Recent Grades[/]");
-        table.Caption("These are the grades set during the past year.");
-        table.AddColumn("[gold1]SSN[/]");
-        table.AddColumn("[gold1]Last Name[/]");
-        table.AddColumn("[gold1]Course[/]");
-        table.AddColumn("[gold1]Grade[/]");
-        table.AddColumn("[gold1]Date[/]");
-        table.Expand();
-        
-        foreach (var grade in grades)
-        {
-            table.AddRow(
-                grade.Ssn.ToString(),
-                grade.LastName,
-                grade.Course,
-                grade.Grade,
-                grade.Date.ToShortDateString());
-        }
-        
-        AnsiConsole.Write(table);
+        table.BorderColor(data.BorderColor);
+        table.Border(data.TableBorder);
+        table.Title(data.Title);
+        table.Caption(data.Caption);
 
+        foreach (var header in data.Headers)
+        {
+            table.AddColumn($"[{data.ColumnColor}]{header}[/]");
+        }
+
+        table.Expand();
+
+        foreach (var row in data.Rows)
+        {
+            table.AddRow(row.ToArray());
+        }
+
+        Console.Clear();
+        AnsiConsole.Write(table);
         Console.ReadKey();
     }
 }

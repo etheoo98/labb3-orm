@@ -2,32 +2,42 @@ using Spectre.Console;
 
 namespace SchoolApp.Views;
 
-public abstract class View : IView
+public abstract class View
 {
-    public T GetChoice<T>(string prompt, List<T> choices) where T : notnull => AnsiConsole.Prompt(
-        new SelectionPrompt<T>()
-            .Title(prompt)
+    protected const string HighlightColor = "SpringGreen3";
+    protected const string PromptStyleColor = "blue";
+
+    public T GetChoice<T>(string prompt, List<T> choices) where T : notnull
+    {
+        Console.Clear();
+        
+        return AnsiConsole.Prompt(new SelectionPrompt<T>().Title(prompt)
+            .HighlightStyle(Color.SpringGreen3)
             .PageSize(10)
             .AddChoices(choices));
+    }
 
-    public string? GetInput(string prompt) => AnsiConsole.Prompt(
-        new TextPrompt<string>(prompt)
-            .PromptStyle("red"));
-    
-    public string? GetSecretInput(string prompt) => AnsiConsole.Prompt(
-        new TextPrompt<string>(prompt)
-            .PromptStyle("red")
-            .Secret());
 
-    public List<T> GetMultiChoice<T>(string prompt, List<T> choices) where T : notnull
+    protected string GetStringInput(string prompt)
     {
-        var fruits = AnsiConsole.Prompt(
-            new MultiSelectionPrompt<T>()
-                .Title(prompt)
-                .Required()
-                .PageSize(10)
-                .AddChoices(choices));
+        Console.Clear();
+        
+        return AnsiConsole.Prompt(new TextPrompt<string>(prompt).PromptStyle($"{PromptStyleColor}").AllowEmpty());
+    }
 
-        return fruits;
+
+    protected string GetSecretStringInput(string prompt)
+    {
+        Console.Clear();
+        
+        return AnsiConsole.Prompt(new TextPrompt<string>(prompt).PromptStyle($"{PromptStyleColor}").Secret().AllowEmpty());
+    }
+        
+
+    protected void ShowMessage(string message)
+    {
+        Console.Clear();
+        AnsiConsole.Write(message);
+        Console.ReadKey();
     }
 }

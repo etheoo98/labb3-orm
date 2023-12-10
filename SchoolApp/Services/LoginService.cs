@@ -8,7 +8,7 @@ public class LoginService(DatabaseContext context) : ILoginService
     {
         var admin = context.Administrators.FirstOrDefault(a => a.Username == username);
 
-        return admin != null && BCrypt.Net.BCrypt.EnhancedVerify(password, admin.Password) 
+        return admin != null && BCrypt.Net.BCrypt.EnhancedVerify(password, admin.Password)
             ? new AdminDto(admin.Username)
             : null;
     }

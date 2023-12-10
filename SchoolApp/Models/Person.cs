@@ -7,7 +7,7 @@ public partial class Person
 {
     public int Id { get; set; }
 
-    public long Ssn { get; set; } // TODO: Make varchar
+    public string Ssn { get; set; } = null!;
 
     public string FirstName { get; set; } = null!;
 

@@ -1,109 +1,96 @@
+using Microsoft.Extensions.DependencyInjection;
 using SchoolApp.Models.DTOs;
 
 namespace SchoolApp.Presenters;
 
-public class AdminPresenter(AdminDto adminDto, IAdminService adminService, AdminView adminView) : IPresenter
+public class AdminPresenter(IAdminService adminService, AdminView adminView, IServiceProvider serviceProvider)
+    : IAdminPresenter
 {
     private Dictionary<string, Action> _adminChoices = new();
-    
-    public void HandlePresenter()
+    private AdminDto _adminDto = null!;
+
+    public void HandlePresenter(AdminDto adminDto)
     {
-        var prompt = $"Welcome back {adminDto.Username}!";
+        _adminDto = adminDto;
+
+        var welcomeMessage = $"Signed in as [blue]{_adminDto.Username}[/].";
         var logout = false;
 
         while (!logout)
         {
             _adminChoices = new Dictionary<string, Action>
             {
-                {"Show Staff*", OnSelect_ShowStaff},
-                {"Show Students*", OnSelect_ShowStudents},
-                {"Show Students* From Year Group*", OnSelect_ShowStudentsFromYearGroup},
-                {"Show Recent Grades*", OnSelect_ShowRecentGrades},
-                {"Show Course Statistics*", OnSelect_ShowCourseStatistics},
-                {"Add New Student", OnSelect_AddNewStudent},
-                {"Add New Staff Member\n", OnSelect_AddNewStaffMember},
-                {"Exit", () => logout = true},
+                { "Show Staff", OnSelect_ShowStaff },
+                { "Show Students", OnSelect_ShowStudents },
+                { "Show Students From Year Group", OnSelect_ShowStudentsFromYearGroup },
+                { "Show Recent Grades", OnSelect_ShowRecentGrades },
+                { "Show Course Statistics", OnSelect_ShowCourseStatistics },
+                { "Add New Student", OnSelect_AddNewStudent },
+                { "Add New Staff Member\n", OnSelect_AddNewStaffMember },
+                { "Logout", () => logout = true },
             };
-            
-            Console.Clear();
 
-            var choice = adminView.GetChoice(prompt, _adminChoices.Keys.ToList());
-            
-            _adminChoices[choice].Invoke();
+            RunPresenter(welcomeMessage);
         }
+    }
+
+    private void RunPresenter(string welcomeMessage)
+    { 
+        var choice = adminView.GetChoice(welcomeMessage, _adminChoices.Keys.ToList());
+
+        _adminChoices[choice].Invoke();
     }
 
     private void OnSelect_ShowStaff()
     {
-        Dictionary<string, string> staffRoleChoices = new()
-        {
-            {"Include Administrators", "Administrator" },
-            {"Include Principals", "Principal"},
-            {"Include Teachers", "Teacher"},
-        };
+        var staffRoleNames = adminService.GetStaffRoleNames();
+        var selectedRoleNames = adminView.GetStaffRoleNames(staffRoleNames);
+        var staff = adminService.GetStaffBasedOnRoles(selectedRoleNames);
 
-        var options = adminView.GetMultiChoice("What Staff do you want to show?", staffRoleChoices.Keys.ToList());
-        var roles = options.Select(option => staffRoleChoices[option]).ToList();
-        var staff = adminService.GetStaffBasedOnRoles(roles);
-
-        adminView.ShowStaff(staff);
+        adminView.ShowStaffTable(staff);
     }
-    
+
     private void OnSelect_ShowStudents()
     {
-        Dictionary<string, bool> sortChoices = new()
-        {
-            {"Sort by first name", true},
-            {"Sort by last name", false},
-        };
-        
-        Dictionary<string, bool> orderChoices = new()
-        {
-            {"Order by ascending (A-Z)", false},
-            {"Order by descending (Z-A)", true},
-        };
-        
-        var sort = adminView
-            .GetChoice("What do you want to sort the Students by?", sortChoices.Keys.ToList());
-        
-        var order = adminView
-            .GetChoice("How do you want to order the Students?", orderChoices.Keys.ToList());
-        
-        var students = adminService
-            .GetAllStudents(sortChoices[sort], orderChoices[order]);
-        
-        adminView.ShowStudents(students);
+        var sortByFirstName = adminView.GetSortChoice();
+        var orderByDescending = adminView.GetOrderChoice();
+        var students = adminService.GetAllStudents(sortByFirstName, orderByDescending);
+
+        adminView.ShowStudentsTable(students);
     }
-    
+
     private void OnSelect_ShowStudentsFromYearGroup()
     {
         var yearGroups = adminService.GetYearGroups();
-        var year = adminView
-            .GetChoice("What year group?", yearGroups.Select(y => y.Year).ToList());
+        var year = adminView.GetYearGroup(yearGroups);
         var students = adminService.GetStudentsFromYearGroup(year);
-        
-        adminView.ShowStudentsFromYearGroup(students);
+
+        adminView.ShowStudentsFromYearGroupTable(students, year);
     }
-    
+
     private void OnSelect_ShowRecentGrades()
     {
         var grades = adminService.GetRecentGrades();
-        adminView.ShowRecentGrades(grades);
+
+        adminView.ShowRecentGradesTable(grades);
     }
-    
+
     private void OnSelect_ShowCourseStatistics()
     {
         var courses = adminService.GetCourseStatistics();
+
         adminView.ShowCourseStatistics(courses);
     }
-    
+
     private void OnSelect_AddNewStudent()
     {
-        throw new NotImplementedException();
+        var addStudentPresenter = serviceProvider.GetRequiredService<AddStudentPresenter>();
+        addStudentPresenter.HandlePresenter();
     }
-    
+
     private void OnSelect_AddNewStaffMember()
     {
-        throw new NotImplementedException();
+        var addStaffPresenter = serviceProvider.GetRequiredService<AddStaffPresenter>();
+        addStaffPresenter.HandlePresenter();
     }
 }

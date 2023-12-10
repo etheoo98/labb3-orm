@@ -152,7 +152,9 @@ public partial class DatabaseContext : DbContext
             entity.Property(e => e.LastName)
                 .HasColumnType("nvarchar(50)")
                 .HasColumnName("Last_Name");
-            entity.Property(e => e.Ssn).HasColumnName("SSN");
+            entity.Property(e => e.Ssn)
+                .HasColumnType("varchar(10)")
+                .HasColumnName("SSN");
         });
 
         modelBuilder.Entity<Principal>(entity =>
