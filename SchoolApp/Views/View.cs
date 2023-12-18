@@ -37,7 +37,7 @@ public abstract class View
     protected void ShowMessage(string message)
     {
         Console.Clear();
-        AnsiConsole.Write(message);
+        AnsiConsole.MarkupLine(message);
         Console.ReadKey();
     }
 }

@@ -10,10 +10,6 @@ public class AddStaffPresenter(IAdminService adminService, AddStaffView addStaff
     private string? _role;
     private string? _compartment;
 
-    private bool HasEmptyFields =>
-        string.IsNullOrEmpty(_ssn) || string.IsNullOrEmpty(_firstName) || string.IsNullOrEmpty(_lastName) ||
-        string.IsNullOrEmpty(_gender) || string.IsNullOrEmpty(_role) || string.IsNullOrEmpty(_compartment);
-
     public void HandlePresenter()
     {
         var back = false;
@@ -25,7 +21,6 @@ public class AddStaffPresenter(IAdminService adminService, AddStaffView addStaff
                 { $"SSN: [blue]{_ssn}[/]", OnSelect_Ssn },
                 { $"First Name: [blue]{_firstName}[/]", OnSelect_FirstName },
                 { $"Last Name: [blue]{_lastName}[/]", OnSelect_LastName },
-                { $"Gender: [blue]{_gender}[/]", OnSelect_Gender },
                 { $"Role: [blue]{_role}[/]", OnSelect_Role },
                 { $"Compartment: [blue]{_compartment}[/]\n", OnSelect_Compartment },
                 { "Add Staff", OnSelect_AddStaff },
@@ -57,11 +52,6 @@ public class AddStaffPresenter(IAdminService adminService, AddStaffView addStaff
         _lastName = addStaffView.GetLastName();
     }
 
-    private void OnSelect_Gender()
-    {
-        _gender = addStaffView.GetGender();
-    }
-
     private void OnSelect_Role()
     {
         var roles = adminService.GetStaffRoleNames();
@@ -76,7 +66,7 @@ public class AddStaffPresenter(IAdminService adminService, AddStaffView addStaff
 
     private void OnSelect_AddStaff()
     {
-        if (HasEmptyFields) return;
+        if (!ValidateFields()) return;
 
         var person = new Person 
             { 
@@ -85,6 +75,7 @@ public class AddStaffPresenter(IAdminService adminService, AddStaffView addStaff
                 LastName = _lastName!,
                 Gender = _gender!
             };
+        
         var success = false;
 
         switch (_role)
@@ -92,7 +83,7 @@ public class AddStaffPresenter(IAdminService adminService, AddStaffView addStaff
             case "Administrator":
                 var username = addStaffView.GetAdminUsername(); // TODO Move
                 var password = addStaffView.GetAdminPassword();
-                success = adminService.AddAdministrator(person, _role, _compartment!, username!, password!);
+                success = adminService.AddAdministrator(person, _role, _compartment!, username, password);
                 break;
             case "Principal":
                 success = adminService.AddPrincipal(person, _role, _compartment!);
@@ -103,6 +94,34 @@ public class AddStaffPresenter(IAdminService adminService, AddStaffView addStaff
         }
 
         HandleServiceResponse(success);
+    }
+    
+    private bool ValidateFields()
+    {
+        if (string.IsNullOrEmpty(_ssn) || string.IsNullOrEmpty(_firstName) || string.IsNullOrEmpty(_lastName)
+            || string.IsNullOrEmpty(_role) || string.IsNullOrEmpty(_compartment) || _ssn.Length != 10 || !long.TryParse(_ssn, out _))
+        {
+            addStaffView.ShowMissingFieldsMessage();
+            
+            return false;
+        }
+        
+        SetGenderBasedOnSsn();
+        FormatSsn();
+
+        return true;
+    }
+
+    private void SetGenderBasedOnSsn() // TODO refactor along with AddStudentPresenter methods
+    {
+        var genderNum = (int)_ssn![6];
+        
+        _gender = genderNum % 2 == 0 ? "Female" : "Male";
+    }
+
+    private void FormatSsn()
+    {
+        _ssn = _ssn![..6] + "-" + _ssn[6..];
     }
 
     private void HandleServiceResponse(bool success)

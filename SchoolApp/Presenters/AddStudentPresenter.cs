@@ -9,10 +9,6 @@ public class AddStudentPresenter(IAdminService adminService, AddStudentView addS
     private string? _gender;
     private int _yearGroup = 1;
 
-    private bool HasEmptyFields =>
-        string.IsNullOrEmpty(_ssn) || string.IsNullOrEmpty(_firstName) || string.IsNullOrEmpty(_lastName) ||
-        string.IsNullOrEmpty(_gender);
-
     public void HandlePresenter()
     {
         var back = false;
@@ -24,7 +20,6 @@ public class AddStudentPresenter(IAdminService adminService, AddStudentView addS
                 { $"SSN: [blue]{_ssn}[/]", OnSelect_Ssn },
                 { $"First Name: [blue]{_firstName}[/]", OnSelect_FirstName },
                 { $"Last Name: [blue]{_lastName}[/]", OnSelect_LastName },
-                { $"Gender: [blue]{_gender}[/]", OnSelect_Gender },
                 { $"Year Group: [blue]{_yearGroup}[/]\n", OnSelect_YearGroup },
                 { "Add Student", OnSelect_AddStudent },
                 { "Back", () => back = true },
@@ -55,11 +50,6 @@ public class AddStudentPresenter(IAdminService adminService, AddStudentView addS
         _lastName = addStudentView.GetLastName();
     }
 
-    private void OnSelect_Gender()
-    {
-        _gender = addStudentView.GetGender();
-    }
-
     private void OnSelect_YearGroup()
     {
         var yearGroups = adminService.GetYearGroups();
@@ -68,7 +58,7 @@ public class AddStudentPresenter(IAdminService adminService, AddStudentView addS
 
     private void OnSelect_AddStudent()
     {
-        if (HasEmptyFields) return;
+        if (!ValidateFields()) return;
 
         var success = adminService.AddStudent(new Person 
             { 
@@ -77,8 +67,36 @@ public class AddStudentPresenter(IAdminService adminService, AddStudentView addS
                 LastName = _lastName!,
                 Gender = _gender!
             }, _yearGroup);
-
+        
         HandleServiceResponse(success);
+    }
+
+    private bool ValidateFields()
+    {
+        if (string.IsNullOrEmpty(_ssn) || string.IsNullOrEmpty(_firstName) || string.IsNullOrEmpty(_lastName)
+            || _ssn.Length != 10 || !int.TryParse(_ssn, out _))
+        {
+            addStudentView.ShowMissingFieldsMessage();
+            
+            return false;
+        }
+        
+        SetGenderBasedOnSsn();
+        FormatSsn();
+
+        return true;
+    }
+
+    private void SetGenderBasedOnSsn()
+    {
+        var genderNum = (int)_ssn![6];
+        
+        _gender = genderNum % 2 == 0 ? "Female" : "Male";
+    }
+
+    private void FormatSsn()
+    {
+        _ssn = _ssn![..6] + "-" + _ssn[6..];
     }
 
     private void HandleServiceResponse(bool success)
