@@ -74,7 +74,7 @@ public class AddStudentPresenter(IAdminService adminService, AddStudentView addS
     private bool ValidateFields()
     {
         if (string.IsNullOrEmpty(_ssn) || string.IsNullOrEmpty(_firstName) || string.IsNullOrEmpty(_lastName)
-            || _ssn.Length != 10 || !int.TryParse(_ssn, out _))
+            || _ssn.Length != 10 || !long.TryParse(_ssn, out _))
         {
             addStudentView.ShowMissingFieldsMessage();
             
