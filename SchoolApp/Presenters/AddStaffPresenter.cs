@@ -81,7 +81,7 @@ public class AddStaffPresenter(IAdminService adminService, AddStaffView addStaff
         switch (_role)
         {
             case "Administrator":
-                var username = addStaffView.GetAdminUsername(); // TODO Move
+                var username = addStaffView.GetAdminUsername();
                 var password = addStaffView.GetAdminPassword();
                 success = adminService.AddAdministrator(person, _role, _compartment!, username, password);
                 break;
@@ -112,7 +112,7 @@ public class AddStaffPresenter(IAdminService adminService, AddStaffView addStaff
         return true;
     }
 
-    private void SetGenderBasedOnSsn() // TODO refactor along with AddStudentPresenter methods
+    private void SetGenderBasedOnSsn()
     {
         var genderNum = (int)_ssn![6];
         

@@ -18,7 +18,8 @@ public class DtoMapper
     }
 
     public StudentDto StudentDtoMapper(Student student) => 
-        new(
+        new(student.Id,
+            student.Roles.Persons.Ssn,
             student.Roles.Persons.FirstName,
             student.Roles.Persons.LastName,
             student.YearGroups.Year,
@@ -36,4 +37,19 @@ public class DtoMapper
             
         return new CourseDto(course.Name, highestGradeLetter, averageGradeLetter, lowestGradeLetter);
     }
+
+    public CompartmentDto CompartmentDtoMapper(Compartment compartment) =>
+        new(compartment.Name, compartment.Salaries.Amount, compartment.Staff.Count);
+
+    public ActiveCourseDto ActiveCourseMapper(Course course)
+    {
+        var teacherLastNames = course.CourseTeachers
+            .Select(ct => ct.Teachers.StaffRoles.Staff.Roles.Persons.LastName).ToList();
+        var teachersString = string.Join(", ", teacherLastNames);
+
+        return new ActiveCourseDto(course.Name, teachersString, course.Registrations.Count);
+    }
+
+    public TeacherDto TeacherDtoMapper(Teacher teacher) => new(teacher.Id, teacher.StaffRoles.Staff.Roles.Persons.Ssn,
+        teacher.StaffRoles.Staff.Roles.Persons.FirstName, teacher.StaffRoles.Staff.Roles.Persons.LastName);
 }

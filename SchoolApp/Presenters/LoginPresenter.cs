@@ -49,7 +49,7 @@ public class LoginPresenter(ILoginService loginService, LoginView loginView, IAd
     private void OnSelect_Password()
     {
         _password = loginView.GetPassword();
-        _maskedPassword = new string('*', _password!.Length);
+        _maskedPassword = new string('*', _password.Length);
     }
 
     private void OnSelect_Login()

@@ -13,6 +13,12 @@ public interface IAdminService
     public List<CourseDto> GetCourseStatistics();
     public bool AddStudent(Person person, int year);
     public List<string> GetCompartments();
+    public List<CompartmentDto> GetCompartmentOverview();
+    public List<ActiveCourseDto> GetActiveCourses();
+    public List<Course> GetStudentsCourses(string ssn);
+    public List<GradeValue> GetGradesValues();
+    public List<TeacherDto> GetAllTeachers();
+    public bool GradeStudent(StudentDto student, TeacherDto teacher, Course course, GradeValue gradeValue);
 
     public bool AddAdministrator(Person person, string staffRoleName, string compartmentName, string username,
         string password);

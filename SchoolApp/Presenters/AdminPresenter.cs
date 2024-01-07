@@ -25,6 +25,9 @@ public class AdminPresenter(IAdminService adminService, AdminView adminView, ISe
                 { "Show Students From Year Group", OnSelect_ShowStudentsFromYearGroup },
                 { "Show Recent Grades", OnSelect_ShowRecentGrades },
                 { "Show Course Statistics", OnSelect_ShowCourseStatistics },
+                { "Show Compartment Overview", OnSelect_ShowCompartmentOverview },
+                { "Show Active Courses", OnSelect_ShowActiveCourses},
+                { "Grade a Student", OnSelect_GradeStudent},
                 { "Add New Student", OnSelect_AddNewStudent },
                 { "Add New Staff Member\n", OnSelect_AddNewStaffMember },
                 { "Logout", () => logout = true },
@@ -80,6 +83,34 @@ public class AdminPresenter(IAdminService adminService, AdminView adminView, ISe
         var courses = adminService.GetCourseStatistics();
 
         adminView.ShowCourseStatistics(courses);
+    }
+
+    private void OnSelect_ShowCompartmentOverview()
+    {
+        var compartments = adminService.GetCompartmentOverview();
+        
+        adminView.ShowCompartmentOverview(compartments);
+    }
+
+    private void OnSelect_ShowActiveCourses()
+    {
+        var courses = adminService.GetActiveCourses();
+
+        adminView.ShowActiveCourses(courses);
+    }
+
+    private void OnSelect_GradeStudent()
+    {
+        var students = adminService.GetAllStudents(true, true);
+        var chosenStudent = adminView.ChooseStudent(students);
+        var courses = adminService.GetStudentsCourses(chosenStudent.Ssn);
+        var chosenCourse = adminView.ChooseCourse(courses);
+        var grades = adminService.GetGradesValues();
+        var chosenGrade = adminView.ChooseGrade(grades);
+        var teachers = adminService.GetAllTeachers();
+        var chosenTeacher = adminView.ChooseTeacher(teachers);
+
+        adminService.GradeStudent(chosenStudent, chosenTeacher, chosenCourse, chosenGrade);
     }
 
     private void OnSelect_AddNewStudent()
